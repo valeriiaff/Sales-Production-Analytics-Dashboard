@@ -1,0 +1,6 @@
+{
+  "name": "Sales & Production Analytics Dashboard",
+  "description": "Interactive data visualization dashboard analyzing plan vs. actual performance, revenue variances, volume & price factor decomposition, and manufacturing labor efficiency.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

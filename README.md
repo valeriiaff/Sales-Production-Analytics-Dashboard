@@ -1,6 +1,8 @@
 # Sales & Operations FP&A Dashboard
 *Interactive Plan vs. Actual Performance & Factor Analysis*
 
+DEMO: https://sales-production-analytics-dashboar.vercel.app/
+
 **Author:** Valeriia F
 
 ---

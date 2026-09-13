@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SalesItem, LaborItem, Language } from '../types';
 import { formatCurrency, formatNumber, formatPercent } from '../lib/utils';
 import { generateVariancePDF, exportVarianceCSV } from '../lib/pdfGenerator';
+import { exportCurrentDataToExcel } from '../lib/excelParser';
 import {
   Table as TableIcon,
   FileSpreadsheet,
@@ -10,6 +11,7 @@ import {
   ChevronDown,
   ChevronRight,
   Info,
+  UploadCloud,
 } from 'lucide-react';
 
 interface DataTableSectionProps {
@@ -17,12 +19,14 @@ interface DataTableSectionProps {
   laborData: LaborItem[];
   language: Language;
   searchQuery?: string;
+  onOpenExcelImport?: () => void;
 }
 
 export const DataTableSection: React.FC<DataTableSectionProps> = ({
   salesData,
   laborData,
   language,
+  onOpenExcelImport,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'sales' | 'labor'>('sales');
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
@@ -45,6 +49,11 @@ export const DataTableSection: React.FC<DataTableSectionProps> = ({
   // Export to CSV using robust generator
   const handleExportCSV = () => {
     exportVarianceCSV(salesData, laborData, language);
+  };
+
+  // Export to Excel (.xlsx)
+  const handleExportExcel = () => {
+    exportCurrentDataToExcel(salesData, laborData, `Variance_Report_${language}.xlsx`);
   };
 
   // Export to PDF
@@ -106,6 +115,42 @@ export const DataTableSection: React.FC<DataTableSectionProps> = ({
             </button>
           </div>
 
+          {/* Import Excel */}
+          {onOpenExcelImport && (
+            <button
+              id="table-import-excel-btn"
+              type="button"
+              onClick={onOpenExcelImport}
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-800 flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+            >
+              <UploadCloud className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{language === 'uk' ? 'Імпорт Excel' : 'Import Excel'}</span>
+            </button>
+          )}
+
+          {/* Export to Excel (.xlsx) */}
+          <button
+            id="table-download-excel-btn"
+            type="button"
+            onClick={handleExportExcel}
+            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#334155] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+            title={language === 'uk' ? 'Завантажити таблицю у форматі Excel (.xlsx)' : 'Download spreadsheet in Excel (.xlsx) format'}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#059669]" />
+            <span>{language === 'uk' ? 'Експорт Excel' : 'Export Excel'}</span>
+          </button>
+
+          {/* Export to CSV */}
+          <button
+            id="table-download-csv-btn"
+            type="button"
+            onClick={handleExportCSV}
+            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#334155] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#10B981]" />
+            <span>{language === 'uk' ? 'CSV' : 'CSV'}</span>
+          </button>
+
           {/* Export to PDF */}
           <button
             id="table-download-pdf-btn"
@@ -119,18 +164,7 @@ export const DataTableSection: React.FC<DataTableSectionProps> = ({
             ) : (
               <FileText className="w-3.5 h-3.5" />
             )}
-            <span>{isGeneratingPDF ? (language === 'uk' ? 'Генерація...' : 'Generating...') : (language === 'uk' ? 'Завантажити PDF' : 'Download PDF')}</span>
-          </button>
-
-          {/* Export to CSV */}
-          <button
-            id="table-download-csv-btn"
-            type="button"
-            onClick={handleExportCSV}
-            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#334155] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-[#10B981]" />
-            <span>{language === 'uk' ? 'Експорт в CSV' : 'Export CSV'}</span>
+            <span>{isGeneratingPDF ? (language === 'uk' ? 'Генерація...' : 'Generating...') : (language === 'uk' ? 'PDF Звіт' : 'PDF Report')}</span>
           </button>
         </div>
       </div>

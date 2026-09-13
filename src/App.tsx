@@ -16,6 +16,7 @@ import { ScenarioSimulator } from './components/ScenarioSimulator';
 import { DataTableSection } from './components/DataTableSection';
 import { InsightsSection } from './components/InsightsSection';
 import { ExportModal } from './components/ExportModal';
+import { ExcelImportModal } from './components/ExcelImportModal';
 import { formatCurrency, formatPercent } from './lib/utils';
 import {
   BarChart3,
@@ -24,6 +25,9 @@ import {
   Sliders,
   Lightbulb,
   ArrowRight,
+  FileSpreadsheet,
+  UploadCloud,
+  RotateCcw,
 } from 'lucide-react';
 
 export default function App() {
@@ -31,11 +35,14 @@ export default function App() {
   const [language, setLanguage] = useState<Language>('uk');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
+  const [isExcelImportOpen, setIsExcelImportOpen] = useState<boolean>(false);
 
-  // Active data state (can be simulated or original)
+  // Active data state (can be custom imported, simulated, or original)
   const [salesData, setSalesData] = useState<SalesItem[]>(INITIAL_SALES_DATA);
   const [laborData, setLaborData] = useState<LaborItem[]>(INITIAL_LABOR_DATA);
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
+  const [isCustomDataLoaded, setIsCustomDataLoaded] = useState<boolean>(false);
+  const [customFileName, setCustomFileName] = useState<string | null>(null);
 
   const handleApplySimulation = (newSales: SalesItem[], newLabor: LaborItem[]) => {
     setSalesData(newSales);
@@ -44,10 +51,29 @@ export default function App() {
     setActiveTab('overview');
   };
 
+  const handleApplyExcelData = (
+    importedSales: SalesItem[],
+    importedLabor: LaborItem[],
+    fileName: string
+  ) => {
+    if (importedSales.length > 0) {
+      setSalesData(importedSales);
+    }
+    if (importedLabor.length > 0) {
+      setLaborData(importedLabor);
+    }
+    setIsCustomDataLoaded(true);
+    setCustomFileName(fileName);
+    setIsSimulated(false);
+    setActiveTab('overview');
+  };
+
   const handleResetToBaseline = () => {
     setSalesData(INITIAL_SALES_DATA);
     setLaborData(INITIAL_LABOR_DATA);
     setIsSimulated(false);
+    setIsCustomDataLoaded(false);
+    setCustomFileName(null);
   };
 
   return (
@@ -62,11 +88,59 @@ export default function App() {
         setSearchQuery={setSearchQuery}
         onReset={handleResetToBaseline}
         onExport={() => setIsExportOpen(true)}
+        onOpenExcelImport={() => setIsExcelImportOpen(true)}
         isSimulated={isSimulated}
+        isCustomDataLoaded={isCustomDataLoaded}
+        activeFileName={customFileName}
       />
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Custom Excel Dataset Banner */}
+        {isCustomDataLoaded && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-xs text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0 shadow-2xs">
+                <FileSpreadsheet className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-emerald-900">
+                    {language === 'uk' ? 'Активні дані з файлу Excel' : 'Active Excel Custom Dataset'}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-[11px] font-mono font-medium text-emerald-800">
+                    {customFileName}
+                  </span>
+                </div>
+                <p className="text-emerald-700 text-xs mt-0.5">
+                  {language === 'uk'
+                    ? `Завантажено ${salesData.length} позицій продажів та ${laborData.length} виробничих ролей. Усі графіки, факторний міст та матриця перераховані.`
+                    : `Loaded ${salesData.length} sales items and ${laborData.length} labor roles. All metrics, factor bridge, and elasticity matrix updated.`}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsExcelImportOpen(true)}
+                className="px-3.5 py-1.5 font-semibold text-emerald-800 bg-white hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+              >
+                <UploadCloud className="w-3.5 h-3.5" />
+                <span>{language === 'uk' ? 'Завантажити інший файл' : 'Upload Another File'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleResetToBaseline}
+                className="px-3.5 py-1.5 font-semibold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+                title={language === 'uk' ? 'Скинути до початкових демо-даних' : 'Reset to default demo data'}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{language === 'uk' ? 'Скинути' : 'Reset'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* KPI Top Row */}
         <MetricCards salesData={salesData} laborData={laborData} language={language} />
 
@@ -296,7 +370,13 @@ export default function App() {
 
         {/* Tab 7: Structured Data Tables */}
         {activeTab === 'table' && (
-          <DataTableSection salesData={salesData} laborData={laborData} language={language} searchQuery={searchQuery} />
+          <DataTableSection
+            salesData={salesData}
+            laborData={laborData}
+            language={language}
+            searchQuery={searchQuery}
+            onOpenExcelImport={() => setIsExcelImportOpen(true)}
+          />
         )}
 
         {/* Tab 8: Qualitative Insights & Notes */}
@@ -313,6 +393,17 @@ export default function App() {
         laborData={laborData}
         language={language}
         isSimulated={isSimulated}
+      />
+
+      {/* Excel Upload & Analysis Modal */}
+      <ExcelImportModal
+        isOpen={isExcelImportOpen}
+        onClose={() => setIsExcelImportOpen(false)}
+        language={language}
+        onApplyData={handleApplyExcelData}
+        onResetToDefault={handleResetToBaseline}
+        isCustomDataLoaded={isCustomDataLoaded}
+        activeFileName={customFileName}
       />
     </div>
   );

@@ -45,11 +45,17 @@ Using standard FP&A factor decomposition methodologies, the system isolates key 
    - Real-time sliders to test "what-if" scenarios by adjusting sales volumes, prices, labor hours, and wage rates.
    - Instant calculation of projected revenue, net variance, and operating margin impact.
 
-7. **Reporting & Data Export**
-   - One-click executive PDF report generation.
-   - Structured CSV data export for external spreadsheet workflows.
+7. **Excel Upload & Flexible Data Analysis**
+   - Direct import of custom user spreadsheets (`.xlsx`, `.xls`, `.csv`) via drag-and-drop or file picker.
+   - Automatic factor decomposition, volume/price/rate calculations, and data preview.
+   - Built-in downloadable reference Excel template (`FPnA_Analytics_Template.xlsx`).
+   - Seamless switching between custom datasets and demo baseline.
 
-8. **Bilingual Support**
+8. **Reporting & Data Export**
+   - One-click executive PDF report generation.
+   - Direct export to Microsoft Excel (`.xlsx`) and structured CSV formats.
+
+9. **Bilingual Support**
    - Complete localized interface in Ukrainian (UK) and English (EN).
 
 ---
@@ -61,6 +67,7 @@ Using standard FP&A factor decomposition methodologies, the system isolates key 
 - **Styling**: Tailwind CSS v4
 - **Icons**: Lucide React
 - **Animations**: Motion
+- **Spreadsheets & Data**: SheetJS (xlsx)
 - **Exporting**: jsPDF, html2canvas
 
 ---

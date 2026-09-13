@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Sparkles,
   Search,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -24,7 +25,10 @@ interface HeaderProps {
   setSearchQuery: (query: string) => void;
   onReset: () => void;
   onExport: () => void;
+  onOpenExcelImport?: () => void;
   isSimulated?: boolean;
+  isCustomDataLoaded?: boolean;
+  activeFileName?: string | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,7 +40,10 @@ export const Header: React.FC<HeaderProps> = ({
   setSearchQuery,
   onReset,
   onExport,
+  onOpenExcelImport,
   isSimulated,
+  isCustomDataLoaded,
+  activeFileName,
 }) => {
   const tabs: { id: ActiveTab; labelUk: string; labelEn: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'overview', labelUk: 'Загальний огляд', labelEn: 'Overview', icon: BarChart3 },
@@ -131,6 +138,32 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <RotateCcw className="w-3.5 h-3.5 text-[#64748B]" />
                 <span className="hidden sm:inline">{language === 'uk' ? 'Скинути' : 'Reset'}</span>
+              </button>
+            )}
+
+            {/* Import Excel Button */}
+            {onOpenExcelImport && (
+              <button
+                id="header-import-excel-btn"
+                type="button"
+                onClick={onOpenExcelImport}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg border shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  isCustomDataLoaded
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-white text-[#334155] border-[#E2E8F0] hover:bg-[#F8FAFC]'
+                }`}
+                title={language === 'uk' ? 'Імпортувати файл Excel (.xlsx, .csv)' : 'Import Excel file (.xlsx, .csv)'}
+              >
+                <FileSpreadsheet className={`w-3.5 h-3.5 ${isCustomDataLoaded ? 'text-emerald-600' : 'text-[#059669]'}`} />
+                <span>
+                  {language === 'uk'
+                    ? isCustomDataLoaded
+                      ? 'Excel активний'
+                      : 'Імпорт Excel'
+                    : isCustomDataLoaded
+                    ? 'Excel Active'
+                    : 'Import Excel'}
+                </span>
               </button>
             )}
 
